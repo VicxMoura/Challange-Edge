@@ -86,7 +86,116 @@ A arquitetura do projeto é composta pelos seguintes componentes:
 
 ## Código Fonte
 
+#include <WiFi.h>
+#include <PubSubClient.h>
 
+// Definir o SSID e a senha da rede Wi-Fi (substitua pelos seus valores)
+const char* ssid = "Wokwi-GUEST";  // Rede padrão no Wokwi
+const char* password = "";         // Sem senha para a rede Wokwi-GUEST
+
+// Usar o broker público HiveMQ
+const char* mqtt_server = "broker.hivemq.com";  // Broker MQTT HiveMQ
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+// Definir pinos do sensor ultrassônico
+#define TRIG_PIN 5
+#define ECHO_PIN 18
+
+// Função para medir a distância usando o sensor ultrassônico
+long measureDistance() {
+  // Enviar o pulso do trigger
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  // Ler o tempo do echo
+  long duration = pulseIn(ECHO_PIN, HIGH);
+  
+  // Calcular a distância em centímetros
+  long distance = (duration * 0.0343) / 2;
+
+  // Limitar a distância para evitar ruídos (0 cm ou > 400 cm são valores suspeitos para esse sensor)
+  if (distance <= 0 || distance > 400) {
+    return -1; // Retorna -1 para indicar erro de leitura
+  }
+
+  return distance;
+}
+
+void setup() {
+  Serial.begin(115200);
+  
+  // Configurar os pinos do sensor ultrassônico
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+
+  // Conectar ao Wi-Fi
+  Serial.println("Conectando ao Wi-Fi...");
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Conectando...");
+  }
+  Serial.println("Conectado ao Wi-Fi!");
+
+  // Configurar o servidor MQTT
+  client.setServer(mqtt_server, 1883);
+}
+
+// Função para reconectar ao broker MQTT, se necessário
+void reconnect() {
+  while (!client.connected()) {
+    Serial.print("Tentando conectar ao broker MQTT...");
+    if (client.connect("ESP32Client")) {
+      Serial.println("Conectado ao broker MQTT");
+    } else {
+      Serial.print("Falhou, rc=");
+      Serial.println(client.state());
+      delay(5000);
+    }
+  }
+}
+
+void loop() {
+  if (!client.connected()) {
+    reconnect();
+  }
+  client.loop();
+
+  // Medir a distância em dois intervalos de tempo
+  long distance1 = measureDistance();
+  delay(100);  // Espera 100ms
+  long distance2 = measureDistance();
+
+  // Verificar se as leituras são válidas
+  if (distance1 == -1 || distance2 == -1) {
+    Serial.println("Erro na leitura da distância");
+    return;
+  }
+
+  // Calcular a variação de distância e a velocidade (em cm/s)
+  long deltaDistance = distance2 - distance1;
+  float velocity = deltaDistance / 0.1;  // Velocidade em cm/s (0.1 segundos)
+
+  // Criar a string da mensagem para enviar via MQTT
+  String payload = "Velocidade: " + String(velocity) + " cm/s";
+  Serial.print("Publicando: ");
+  Serial.println(payload);
+
+  // Publicar os dados no tópico "iot/velocidade"
+  if (client.publish("iot/velocidade", payload.c_str())) {
+    Serial.println("Mensagem publicada com sucesso!");
+  } else {
+    Serial.println("Falha ao publicar mensagem.");
+  }
+
+  // Esperar 2 segundos antes de repetir a medição
+  delay(2000);
+}
 
 ## Dependências
 
