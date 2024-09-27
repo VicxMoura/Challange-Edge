@@ -1,5 +1,12 @@
 # IoT Sensor Ultrassônico para Medição de Velocidade
 
+# Integrantes
+Victoria Moura - RM555474
+Nickolas Moreno Cardoso - RM557132
+Andre Giovane De Maria - RM556384
+Kaio Drago Lima Souza - RM556095
+Lucas Imparato - RM554896
+
 ## Descrição do Projeto
 
 Este projeto consiste no desenvolvimento de uma solução IoT que utiliza o sensor ultrassônico HC-SR04, acoplado a um ESP32, para medir a velocidade de um objeto em movimento. Os dados de velocidade são transmitidos para o HiveMQ via protocolo MQTT e exibidos em tempo real no Node-RED, proporcionando uma interface simples e interativa para monitorar a velocidade.
