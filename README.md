@@ -39,7 +39,7 @@ A arquitetura do projeto é composta pelos seguintes componentes:
 
 ### Software
 
-- **Arduino IDE** ou **PlatformIO** (para programar o ESP32)
+- **Wokwi** (para programar o ESP32)
 - **Node-RED** (para visualização dos dados)
 - **Broker MQTT HiveMQ**
 - **Bibliotecas Arduino**:
@@ -74,7 +74,7 @@ A arquitetura do projeto é composta pelos seguintes componentes:
 ## Instruções de Uso
 
 1. **Configuração do ESP32**
-   - Abra o código na Arduino IDE e ajuste as configurações de rede (SSID e senha) e o broker MQTT.
+   - Abra o código no Wokwi e ajuste as configurações de rede (SSID e senha) e o broker MQTT.
    - Faça o upload do código no ESP32.
 
 2. **Configuração do Node-RED**
@@ -199,7 +199,7 @@ void loop() {
 
 ## Dependências
 
-- **Arduino IDE**
+- **Wokwi**
 - **Node-RED**
 - **Broker MQTT HiveMQ**
   
