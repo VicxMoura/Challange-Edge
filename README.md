@@ -189,7 +189,7 @@ void loop() {
   float velocity = deltaDistance / 0.1;  // Velocidade em cm/s (0.1 segundos)
 
   // Criar a string da mensagem para enviar via MQTT
-  String payload = "Velocidade: " + String(velocity) + " cm/s";
+  String payload = String(velocity);
   Serial.print("Publicando: ");
   Serial.println(payload);
 
@@ -200,8 +200,8 @@ void loop() {
     Serial.println("Falha ao publicar mensagem.");
   }
 
-  // Esperar 2 segundos antes de repetir a medição
-  delay(2000);
+  // Esperar 5 segundos antes de repetir a medição
+  delay(5000);
 }
 
 ## Dependências
